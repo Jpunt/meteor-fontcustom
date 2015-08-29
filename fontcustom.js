@@ -1,57 +1,79 @@
+var path = Npm.require('path');
+var fs   = Npm.require('fs');
+
 var _ = Npm.require('underscore');
 var yaml = Npm.require('yamljs');
 var fontcustom = Npm.require('fontcustom');
 
-Plugin.registerCompiler({
-  extensions: ["svg"],
-  filenames: ["fontcustom.yml"]
-}, function () {
-  var compiler  = new FontCustomCompiler();
-  return compiler;
-});
+var CONFIG_FILE_NAME = 'fontcustom.yml';
+var config;
 
-function FontCustomCompiler() {}
-
-FontCustomCompiler.prototype.processFilesForTarget = function(files) {
-  var self = this;
-
-  if(self.busy) return;
-  self.busy = true;
-
-  var configYml = _.find(files, function(file) {
-    return file.getBasename() === 'fontcustom.yml';
-  });
-
-  if(!configYml) {
-    return; // No config found, fail silently
+/*
+ * Compile FontCustom
+ */
+var fontCustomBusy;
+function compile(compileStep) {
+  if(!config) {
+    return;
   }
 
-  var config;
+  var dir;
   try {
-    config = yaml.parse(configYml.getContentsAsString());
+    dir = fs.readdirSync(config.input.vectors);
   } catch(err) {
-    return configYml.error({ message:'Could not parse config' });
+    compileStep.error({ sourcePath:compileStep.inputPath, message:'Could not read input-dir' });
+    return;
   }
 
-  var svgs = _.chain(files)
-    .filter(function(file) {
-      return file.getBasename() !== 'fontcustom.yml';
-    })
-    .filter(function(file) {
-      return file.getDirname() === config.input.vectors;
-    })
-    .value();
-
+  var svgs = _.filter(dir, function(file) {
+    return path.extname(file) === '.svg';
+  });
   if(svgs.length === 0) {
-    return console.log("Could not find any SVG's to compile");
+    compileStep.error({ sourcePath:compileStep.inputPath, message:"Could not find any SVG's to compile" });
+    return;
   }
 
+  if(fontCustomBusy) {
+    return;
+  }
   fontcustom(config)
     .then(function() {
-      self.busy = false;
+      fontCustomBusy = false;
     })
     .catch(function(err) {
-      svgs[0].error({ message: 'FontCustom failed:' + err });
-      self.busy = false;
+      fontCustomBusy = false;
     });
+}
+
+/*
+ * ymlHandler
+ * Some *.yml is changed, check if it's fontcustom.yml, read it, then compile
+ */
+var ymlHandler = function(compileStep) {
+  if(compileStep.inputPath !== CONFIG_FILE_NAME) {
+    return;
+  }
+
+  try {
+    config = yaml.parse(compileStep.read().toString('utf8'));
+  } catch(err) {
+    compileStep.error({ sourcePath:compileStep.inputPath, message:'Could not parse config' });
+    return;
+  }
+
+  compile(compileStep);
 };
+
+/*
+ * svgHandler
+ * Some *.svg is changed, try to compile
+ */
+var svgHandler = function(compileStep) {
+  compile(compileStep);
+};
+
+/*
+ * Register source handlers
+ */
+Plugin.registerSourceHandler("yml", { archMatching: 'web' }, ymlHandler);
+Plugin.registerSourceHandler("svg", { archMatching: 'web' }, svgHandler);

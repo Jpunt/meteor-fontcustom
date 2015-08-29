@@ -13,10 +13,7 @@ Package.registerBuildPlugin({
   ],
   npmDependencies: {
     "yamljs": "0.2.3",
-    "fontcustom": "0.0.3"
+    "fontcustom": "0.0.3",
+    "underscore": "1.8.3"
   }
-});
-
-Package.onUse(function(api) {
-  api.use('isobuild:compiler-plugin@1.0.0');
 });
