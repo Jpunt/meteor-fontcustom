@@ -2,7 +2,7 @@
 
 > Important: This package requires Meteor 1.2 (and it's tested on rc-7)
 
-This package integrates [FontCustom](http://fontcustom.com) with Meteor. It is *not* a replacement for the gem, so you'll still have to install that independently. It uses an awesome [npm-package](https://www.npmjs.com/package/fontcustom) to make the call to compile.
+This package integrates [FontCustom](http://fontcustom.com) with Meteor. It is **not** a replacement for the gem, so you'll still have to install that independently. It uses an awesome [npm-package](https://www.npmjs.com/package/fontcustom) to run the compilation.
 
 ## Installation
 Make sure you've got FontCustom installed (follow the instructions at: [fontcustom.com](http://fontcustom.com) and run:
@@ -64,3 +64,4 @@ This will assume that your SVG's are in `client/svgs` and when you run your serv
 - SVG's should be placed where they get picked up by Meteor, so `public` won't work
 - The output-path should be in `public`, so that they'll be statically available for the client
 - For more options, refer to [fontcustom.com](http://fontcustom.com)
+- This package requires Meteor 1.2 (and it's tested on rc-7)
