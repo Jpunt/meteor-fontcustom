@@ -1,8 +1,8 @@
 Package.describe({
   name: 'q42:fontcustom',
   version: '0.0.1',
-  summary: 'Compile FontCustom as soon as your SVGs change.',
-  git: '',
+  summary: "Automatically compile FontCustom when you change SVG's",
+  git: 'https://github.com/Jpunt/meteor-fontcustom.git',
   documentation: 'README.md'
 });
 
