@@ -8,7 +8,7 @@ var fontcustom;
 try {
   fontcustom = Npm.require('fontcustom');
 } catch(err) {
-  console.log('Could not load FontCustom');
+  console.log('Could not load FontCustom, skipping compilation of icons');
 }
 
 var CONFIG_FILE_NAME = 'fontcustom.yml';
