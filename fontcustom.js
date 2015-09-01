@@ -3,7 +3,13 @@ var fs   = Npm.require('fs');
 
 var _ = Npm.require('underscore');
 var yaml = Npm.require('yamljs');
-var fontcustom = Npm.require('fontcustom');
+
+var fontcustom;
+try {
+  fontcustom = Npm.require('fontcustom');
+} catch(err) {
+  console.log('Could not load FontCustom');
+}
 
 var CONFIG_FILE_NAME = 'fontcustom.yml';
 var config;
@@ -14,6 +20,10 @@ var config;
 var fontCustomBusy;
 function compile(compileStep) {
   if(!config) {
+    return;
+  }
+
+  if(!fontcustom) {
     return;
   }
 
@@ -36,13 +46,18 @@ function compile(compileStep) {
   if(fontCustomBusy) {
     return;
   }
-  fontcustom(config)
-    .then(function() {
-      fontCustomBusy = false;
-    })
-    .catch(function(err) {
-      fontCustomBusy = false;
-    });
+
+  try {
+    fontcustom(config)
+      .then(function() {
+        fontCustomBusy = false;
+      })
+      .catch(function(err) {
+        fontCustomBusy = false;
+      });
+  } catch(err) {
+    console.log('Failed to compile FontCustom');
+  }
 }
 
 /*
